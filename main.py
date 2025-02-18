@@ -1,7 +1,7 @@
 import streamlit as st
 import yt_dlp
 import os
-import subprocess
+from moviepy.editor import VideoFileClip
 
 # Set the correct FFmpeg path (update this based on the output of 'which ffmpeg')
 ffmpeg_path = "/opt/homebrew/bin/ffmpeg"  # Replace with your actual ffmpeg path
@@ -31,7 +31,7 @@ def download_youtube_video(youtube_url, format):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=True)
             if 'entries' in info:
-                # Playlist
+                # Playlist: take the first video
                 file_path = ydl.prepare_filename(info['entries'][0])
             else:
                 # Single video
@@ -48,6 +48,21 @@ def download_youtube_video(youtube_url, format):
         st.error(f"Error downloading video: {str(e)}")
         return None
 
+def trim_video(file_path, start_time, end_time):
+    try:
+        clip = VideoFileClip(file_path)
+        trimmed_clip = clip.subclip(start_time, end_time)
+        base, ext = os.path.splitext(file_path)
+        output_path = base + '_trimmed.mp4'
+        trimmed_clip.write_videofile(output_path, codec="libx264")
+        clip.close()
+        trimmed_clip.close()
+        st.success(f"Trimmed video saved to: {output_path}")
+        return output_path
+    except Exception as e:
+        st.error(f"Error trimming video: {str(e)}")
+        return None
+
 st.title('YouTube to MP4/MP3 Converter')
 
 youtube_url = st.text_input('Enter YouTube Video URL:')
@@ -62,6 +77,14 @@ if st.button('Convert'):
                 st.write(f'File: {file_path}')
                 if format_option == 'mp4':
                     st.video(file_path)
+                    st.markdown("---")
+                    st.subheader("Edit Video")
+                    start_time = st.number_input("Enter start time (in seconds):", min_value=0.0, value=0.0, step=0.1)
+                    end_time = st.number_input("Enter end time (in seconds):", min_value=0.0, value=10.0, step=0.1)
+                    if st.button("Trim Video"):
+                        trimmed_file = trim_video(file_path, start_time, end_time)
+                        if trimmed_file:
+                            st.video(trimmed_file)
                 else:
                     st.audio(file_path)
             else:
