@@ -1,0 +1,7 @@
+streamlit 
+pytube
+pydub
+numpy
+matplotlib
+pandas
+yfinance
