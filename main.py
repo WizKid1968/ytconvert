@@ -29,6 +29,8 @@ def download_youtube_video(youtube_url, format):
         'retries': 10,
         'fragment_retries': 10,
         'skip_unavailable_fragments': True,
+        'source_address': '0.0.0.0', # Use IPv4
+        'nocheckcertificate': True,
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
