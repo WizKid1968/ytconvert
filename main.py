@@ -19,7 +19,8 @@ st.set_page_config(
 )
 
 def download_youtube_video(youtube_url, format):
-    output_template = '%(id)s.%(ext)s'
+    downloads_path = os.path.join(os.path.expanduser('~'), 'Downloads')
+    output_template = os.path.join(downloads_path, '%(id)s.%(ext)s')
     ydl_opts = {
         'format': 'bestaudio/best' if format == 'mp3' else 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4',
         'outtmpl': output_template,
@@ -70,6 +71,12 @@ def trim_video(file_path, start_time, end_time):
         trimmed_clip.write_videofile(output_path, codec="libx264")
         clip.close()
         trimmed_clip.close()
+        
+        # Delete the original file
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            st.info(f"Original file deleted: {file_path}")
+
         st.success(f"Trimmed video saved to: {output_path}")
         return output_path
     except Exception as e:
@@ -111,7 +118,7 @@ if st.button('Convert'):
         st.error('Please enter a YouTube video URL.')
 
 # Trim video section - displayed if a video was successfully downloaded
-if st.session_state["downloaded_video"]:
+if st.session_state["downloaded_video"] and st.session_state["downloaded_video"].endswith('.mp4'):
     st.markdown("---")
     st.subheader("Edit Video")
     start_time = st.number_input("Enter start time (in seconds):", min_value=0.0, value=0.0, step=0.1)
