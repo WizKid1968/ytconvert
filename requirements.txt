@@ -1,5 +1,5 @@
-streamlit 
-pytube
+streamlit
+yt_dlp
 pydub
 numpy
 matplotlib
