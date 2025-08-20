@@ -1,0 +1,7 @@
+# Media files
+*.mp3
+*.mp4
+*.webm
+
+# macOS
+.DS_Store
